@@ -74,7 +74,7 @@ def execute_script():
 def submit_parameters():
     global window_connections
     titles = entry_window_titles.get().split(',')
-    window_titles = [title.strip() for title in titles]
+    window_titles = [title.strip() + ' - Dofus 2.67.10.13' for title in titles]
 
     window.destroy()
 
@@ -89,10 +89,10 @@ def submit_parameters():
 # Create the GUI window
 window = tk.Tk()
 window.title("Parameter Input")
-window.geometry("300x150")
+window.geometry("600x300")
 
 # Window Titles Label and Entry
-label_window_titles = tk.Label(window, text="Window Titles (comma-separated):")
+label_window_titles = tk.Label(window, text="Noms de vos personnages (Séparés par des virgules, tout attaché):")
 label_window_titles.pack()
 entry_window_titles = tk.Entry(window)
 entry_window_titles.pack()
