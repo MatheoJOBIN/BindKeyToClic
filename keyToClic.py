@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import win32gui
-import win32api
 import win32con
-from pynput import keyboard
-from pywinauto import Application
+import pywinauto
 import tkinter as tk
+import pyautogui
+from pynput import keyboard
 
 def get_window_client_rect(window_title):
     hwnd = win32gui.FindWindow(None, window_title)
@@ -33,56 +33,38 @@ def click_on_border(window_title, border):
         return
 
     # Perform a click at the specified coordinates
-    win32api.SetCursorPos((x, y))
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
+    pyautogui.click(x, y)
 
-def on_press_wrapper(window_titles):
-    def on_press(key):
-        on_press_real(key, window_titles)
-    return on_press
-
-def on_press_real(key, window_titles):
-    app = Application(backend="uia")
+def on_press(key):
+    global window_connections
     if key == keyboard.KeyCode(char='²'):
         # Stop listener when 'Esc' key is pressed
         print('Exiting...')
         return False
     elif key == keyboard.Key.left:
         print('Left key pressed')
-        for window_title in window_titles:
-            app.connect(title_re=window_title)
-            print('1')
-            window = app.window(title_re=window_title)
-            print('2')
-            window.set_focus()
-            print('3')
+        for window_title, window_connection in window_connections.items():
+            window_connection.set_focus()
             click_on_border(window_title, 'left')
             print('Left click performed')
     elif key == keyboard.Key.right:
-        for window_title in window_titles:
-            app = Application(backend="uia").connect(title_re=window_title)
-            window = app.window(title_re=window_title)
-            window.set_focus()
+        for window_title, window_connection in window_connections.items():
+            window_connection.set_focus()
             click_on_border(window_title, 'right')
     elif key == keyboard.Key.up:
-        for window_title in window_titles:
-            app = Application(backend="uia").connect(title_re=window_title)
-            window = app.window(title_re=window_title)
-            window.set_focus()
+        for window_title, window_connection in window_connections.items():
+            window_connection.set_focus()
             click_on_border(window_title, 'top')
     elif key == keyboard.Key.down:
-        for window_title in window_titles:
-            app = Application(backend="uia").connect(title_re=window_title)
-            window = app.window(title_re=window_title)
-            window.set_focus()
+        for window_title, window_connection in window_connections.items():
+            window_connection.set_focus()
             click_on_border(window_title, 'bottom')
     else:
         print('Key pressed: ' + str(key))
 
-def execute_script(window_titles):
+def execute_script():
     # Create a listener for keyboard inputs
-    listener = keyboard.Listener(on_press=on_press_wrapper(window_titles))
+    listener = keyboard.Listener(on_press=on_press)
     # Start the listener in a separate thread
     listener.start()
 
@@ -90,13 +72,19 @@ def execute_script(window_titles):
     listener.join()
 
 def submit_parameters():
+    global window_connections
     titles = entry_window_titles.get().split(',')
     window_titles = [title.strip() for title in titles]
-    print("Window Titles: " + str(window_titles))
-    execute_script(window_titles)
 
-# Initialize the variables
-window_titles = []
+    window.destroy()
+
+    # Connect to the applications and store the window connections
+    window_connections = {}
+    for window_title in window_titles:
+        app = pywinauto.Application(backend="uia").connect(title_re=window_title)
+        window_connections[window_title] = app.window(title_re=window_title)
+
+    execute_script()
 
 # Create the GUI window
 window = tk.Tk()
