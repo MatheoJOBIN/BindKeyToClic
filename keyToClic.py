@@ -41,7 +41,7 @@ def showHideInterfaces():
     pyautogui.keyDown('alt')
 
     # Simulate ² key press
-    pyautogui.press('²')
+    pyautogui.press('asciicircum')
 
     # Simulate Alt key release
     pyautogui.keyUp('alt')
@@ -52,27 +52,31 @@ def on_press(key):
         print('Exiting...')
         return False
     elif key == keyboard.Key.left:
+        print('Left key pressed')
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
             click_on_border(window_title, 'left')
+            print('Left clic performed for ' + window_title.split(' - ')[0])
     elif key == keyboard.Key.right:
+        print('Right key pressed')
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
             click_on_border(window_title, 'right')
+            print('Right clic performed for ' + window_title.split(' - ')[0])
     elif key == keyboard.Key.up:
+        print('Up key pressed')
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
             click_on_border(window_title, 'top')
+            print('Top clic performed for ' + window_title.split(' - ')[0])
     elif key == keyboard.Key.down:
+        print('Down key pressed')
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
-            # time.sleep(1)
-            # showHideInterfaces()
-            # time.sleep(1)
+            pyautogui.press('F10')
             click_on_border(window_title, 'bottom')
-            # time.sleep(1)
-            # showHideInterfaces()
-            # time.sleep(1)
+            pyautogui.press('F10')
+            print('Bottom clic performed for ' + window_title.split(' - ')[0])
     else:
         print('Key pressed: ' + str(key))
         return
