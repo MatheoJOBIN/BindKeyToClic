@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import win32gui
 import win32con
+import time
 import pywinauto
 import tkinter as tk
 import pyautogui
@@ -35,18 +36,25 @@ def click_on_border(window_title, border):
     # Perform a click at the specified coordinates
     pyautogui.click(x, y)
 
+def showHideInterfaces():
+    # Simulate Alt key press
+    pyautogui.keyDown('alt')
+
+    # Simulate ² key press
+    pyautogui.press('²')
+
+    # Simulate Alt key release
+    pyautogui.keyUp('alt')
+
 def on_press(key):
-    global window_connections
-    if key == keyboard.KeyCode(char='²'):
+    if key == keyboard.KeyCode(char='\x11') or key == keyboard.Key.esc:
         # Stop listener when 'Esc' key is pressed
         print('Exiting...')
         return False
     elif key == keyboard.Key.left:
-        print('Left key pressed')
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
             click_on_border(window_title, 'left')
-            print('Left click performed')
     elif key == keyboard.Key.right:
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
@@ -58,9 +66,16 @@ def on_press(key):
     elif key == keyboard.Key.down:
         for window_title, window_connection in window_connections.items():
             window_connection.set_focus()
+            # time.sleep(1)
+            # showHideInterfaces()
+            # time.sleep(1)
             click_on_border(window_title, 'bottom')
+            # time.sleep(1)
+            # showHideInterfaces()
+            # time.sleep(1)
     else:
         print('Key pressed: ' + str(key))
+        return
 
 def execute_script():
     # Create a listener for keyboard inputs
