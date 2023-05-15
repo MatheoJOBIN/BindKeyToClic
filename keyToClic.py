@@ -1,11 +1,27 @@
 # -*- coding: utf-8 -*-
 import win32gui
-import win32con
-import time
 import pywinauto
 import tkinter as tk
 import pyautogui
 from pynput import keyboard
+
+def get_dofus_window():
+    global window_connections
+
+    window_titles = []
+    def callback(hwnd, window_titles):
+        if win32gui.GetWindowText(hwnd).find('Dofus') >= 0:
+            window_titles.append(win32gui.GetWindowText(hwnd))
+        return True
+    win32gui.EnumWindows(callback, window_titles)
+
+    # Connect to the applications and store the window connections
+    window_connections = {}
+    for window_title in window_titles:
+        app = pywinauto.Application(backend="uia").connect(title_re=window_title)
+        window_connections[window_title] = app.window(title_re=window_title)
+
+    execute_script()
 
 def get_window_client_rect(window_title):
     hwnd = win32gui.FindWindow(None, window_title)
@@ -47,39 +63,42 @@ def showHideInterfaces():
     pyautogui.keyUp('alt')
 
 def on_press(key):
-    if key == keyboard.KeyCode(char='\x11') or key == keyboard.Key.esc:
-        # Stop listener when 'Esc' key is pressed
-        print('Exiting...')
-        return False
-    elif key == keyboard.Key.left:
-        print('Left key pressed')
-        for window_title, window_connection in window_connections.items():
-            window_connection.set_focus()
-            click_on_border(window_title, 'left')
-            print('Left clic performed for ' + window_title.split(' - ')[0])
-    elif key == keyboard.Key.right:
-        print('Right key pressed')
-        for window_title, window_connection in window_connections.items():
-            window_connection.set_focus()
-            click_on_border(window_title, 'right')
-            print('Right clic performed for ' + window_title.split(' - ')[0])
-    elif key == keyboard.Key.up:
-        print('Up key pressed')
-        for window_title, window_connection in window_connections.items():
-            window_connection.set_focus()
-            click_on_border(window_title, 'top')
-            print('Top clic performed for ' + window_title.split(' - ')[0])
-    elif key == keyboard.Key.down:
-        print('Down key pressed')
-        for window_title, window_connection in window_connections.items():
-            window_connection.set_focus()
-            pyautogui.press('F10')
-            click_on_border(window_title, 'bottom')
-            pyautogui.press('F10')
-            print('Bottom clic performed for ' + window_title.split(' - ')[0])
-    else:
-        print('Key pressed: ' + str(key))
-        return
+    try:
+        if key == keyboard.KeyCode(char='\x11') or key == keyboard.Key.esc:
+            # Stop listener when 'Esc' key is pressed
+            print('Exiting...')
+            return False
+        elif key == keyboard.Key.left:
+            print('Left key pressed')
+            for window_title, window_connection in window_connections.items():
+                window_connection.set_focus()
+                click_on_border(window_title, 'left')
+                print('Left clic performed for ' + window_title.split(' - ')[0])
+        elif key == keyboard.Key.right:
+            print('Right key pressed')
+            for window_title, window_connection in window_connections.items():
+                window_connection.set_focus()
+                click_on_border(window_title, 'right')
+                print('Right clic performed for ' + window_title.split(' - ')[0])
+        elif key == keyboard.Key.up:
+            print('Up key pressed')
+            for window_title, window_connection in window_connections.items():
+                window_connection.set_focus()
+                click_on_border(window_title, 'top')
+                print('Top clic performed for ' + window_title.split(' - ')[0])
+        elif key == keyboard.Key.down:
+            print('Down key pressed')
+            for window_title, window_connection in window_connections.items():
+                window_connection.set_focus()
+                pyautogui.press('F10')
+                click_on_border(window_title, 'bottom')
+                pyautogui.press('F10')
+                print('Bottom clic performed for ' + window_title.split(' - ')[0])
+        else:
+            print('Key pressed: ' + str(key))
+            return
+    except AttributeError:
+        print(AttributeError)
 
 def execute_script():
     # Create a listener for keyboard inputs
@@ -90,39 +109,4 @@ def execute_script():
     # Keep the main thread running
     listener.join()
 
-def submit_parameters():
-    global window_connections
-    titles = entry_window_titles.get().split(',')
-    window_titles = [title.strip() + ' - Dofus 2.67.10.13' for title in titles]
-
-    window.destroy()
-
-    # Connect to the applications and store the window connections
-    window_connections = {}
-    for window_title in window_titles:
-        app = pywinauto.Application(backend="uia").connect(title_re=window_title)
-        window_connections[window_title] = app.window(title_re=window_title)
-
-    execute_script()
-
-# Create the GUI window
-window = tk.Tk()
-window.title("Parameter Input")
-window.geometry("600x300")
-
-# Window Titles Label and Entry
-label_window_titles = tk.Label(window, text="Noms de vos personnages (Séparés par des virgules, tout attaché):")
-label_window_titles.pack()
-entry_window_titles = tk.Entry(window)
-entry_window_titles.pack()
-
-# Submit Button
-submit_button = tk.Button(window, text="Submit", command=submit_parameters)
-submit_button.pack()
-
-# Quit Button
-quit_button = tk.Button(window, text="Quit", command=window.quit)
-quit_button.pack()
-
-# Start the GUI event loop
-window.mainloop()
+get_dofus_window()
