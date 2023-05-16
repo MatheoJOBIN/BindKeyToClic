@@ -52,6 +52,66 @@ def click_on_border(window_title, border):
     # Perform a click at the specified coordinates
     pyautogui.click(x, y)
 
+def checkCoordinates(text):
+    # Allow empty input
+    if not text:
+        return True
+
+    try:
+        if(int(text) < -100 or int(text) > 100):
+            print("Invalid input, please enter a number between -100 and 100")
+            return False
+        else:
+            return True
+    except ValueError:
+        if text == '-' or (text.startswith("-") and text[1:].isdigit()):
+            return True
+        return False
+
+
+def travel():
+    # Create the GUI window
+    window = tk.Tk()
+    window.title("Travel to")
+    window.geometry("600x300")
+
+    # Create label and entry widgets for x and y coordinates
+    x_label = tk.Label(window, text="X coordinate (-100 to 100)")
+    x_label.pack()
+    x_entry = tk.Entry(window, validate="key")
+    x_entry.config(validatecommand=(window.register(checkCoordinates), '%P'))
+    x_entry.pack()
+
+    y_label = tk.Label(window, text="Y coordinate (-100 to 100)")
+    y_label.pack()
+    y_entry = tk.Entry(window, validate="key")
+    y_entry.config(validatecommand=(window.register(checkCoordinates), '%P'))
+    y_entry.pack()
+
+    def submitCoordinates():
+        global command
+        x = int(x_entry.get())
+        y = int(y_entry.get())
+        command = "/travel " + str(x) + " " + str(y)
+
+        # Close the window
+        window.destroy()
+
+        # Use the obtained coordinates as needed
+        # For example, print the values
+        print(f"X: {x}, Y: {y}, command: {command}")
+
+    # Submit Button
+    submit_button = tk.Button(window, text="Submit", command=submitCoordinates)
+    submit_button.pack()
+
+    # Quit Button
+    quit_button = tk.Button(window, text="Quit", command=window.quit())
+    quit_button.pack()
+
+    # Start the GUI event loop
+    window.mainloop()
+
 def showHideInterfaces():
     # Simulate Alt key press
     pyautogui.keyDown('alt')
@@ -94,6 +154,17 @@ def on_press(key):
                 click_on_border(window_title, 'bottom')
                 pyautogui.press('F10')
                 print('Bottom clic performed for ' + window_title.split(' - ')[0])
+        elif key == keyboard.KeyCode(char=','):
+            print('Travel interface launched')
+            travel()
+            for window_title, window_connection in window_connections.items():
+                window_connection.set_focus()
+                pyautogui.press('space')
+                pyautogui.typewrite(command)
+                pyautogui.press('enter')
+                pyautogui.press('enter')
+                print('Travel command sent to ' + window_title.split(' - ')[0])
+            print('Travel command sent to all accounts')
         else:
             print('Key pressed: ' + str(key))
             return
